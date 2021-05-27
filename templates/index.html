@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mtaa examples with flask </title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+        $(function() {
+          $('#regions').bind('click', function() {
+                const region = this.value;
+                $('#wards').empty();
+                $('#streets').empty();
+                $('#neighborhood').empty();
+                const d_options = $('#districts').empty();
+                $.get( "/"+region, (districts)=>{
+                    for (index=0;index<districts.length;index++){
+                        d_options.append(new Option(districts[index]))
+                    }
+                });
+          });
+
+          $('#districts').bind('click', function() {
+                const region = $('#regions').val();
+                const district = this.value;
+                $('#streets').empty();
+                $('#neighborhood').empty();
+                const d_options = $('#wards').empty();
+                $.get( "/"+ region + '/' + district, (wards)=>{
+                    // console.log(wards)
+                    for (index=0;index<wards.length;index++){
+                        d_options.append(new Option(wards[index]))
+                    }
+                });
+          });
+
+
+          $('#wards').bind('click', function() {
+                const region = $('#regions').val();
+                const district = $("#districts").val();
+                const ward = this.value;
+                $('#neighborhood').empty();
+                const d_options = $('#streets').empty();
+                $.get( "/"+ region + '/' + district + '/' + ward, (streets)=>{
+                    // console.log(streets)
+                    for (index=0;index<streets.length;index++){
+                        d_options.append(new Option(streets[index]))
+                    }
+                });
+          });
+
+          $('#streets').bind('click', function() {
+                const region = $('#regions').val();
+                const district = $("#districts").val();
+                const ward = $("#wards").val();
+                const street = this.value;
+                const d_options = $('#neighborhood').empty();
+                $.get( "/"+ region + '/' + district + '/' + ward + '/' + street, (neighborhood)=>{
+                    console.log(neighborhood)
+                    for (index=0;index<neighborhood.length;index++){
+                        d_options.append(new Option(neighborhood[index]))
+                    }
+                });
+          });
+
+
+        });
+
+
+      </script>
+
+    <style>
+        body {
+            background-color: blueviolet;
+        }
+
+        .form {
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: larger;
+            color: white;
+
+        }
+
+        select {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: large;
+            width: 250px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form" align="center">
+        <h1>Mtaa Example with Flask </h1>
+        <form>
+            <p>Region</p>
+            <select id="regions">
+                {% for region in list(tanzania) %}
+                <option>{{region}}</option>
+                {% endfor %}
+            </select><br>
+
+            <p>District</p>
+            <select name='district' id="districts">District>
+                <option>None</option>
+            </select>
+
+            <p>Ward</p>
+            <select name='ward' id="wards">
+                <option>None</option>
+            </select>
+
+            <p>Street</p>
+            <select name='street' id='streets'>
+                <option>None</option>
+            </select>
+
+            <p>Neighborhood</p>
+            <select name='neighborhood' id='neighborhood'>
+                <option>None</option>
+            </select>
+        </form>
+    </div>
+</body>
+
+</html>
