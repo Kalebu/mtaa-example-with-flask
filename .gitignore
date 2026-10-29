@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Generated Netlify function data
+netlify/functions/data/
+.netlify/

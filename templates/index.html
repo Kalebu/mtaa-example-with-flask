@@ -1,130 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mtaa examples with flask </title>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type=text/javascript>
-        $(function() {
-          $('#regions').bind('click', function() {
-                const region = this.value;
-                $('#wards').empty();
-                $('#streets').empty();
-                $('#neighborhood').empty();
-                const d_options = $('#districts').empty();
-                $.get( "/"+region, (districts)=>{
-                    for (index=0;index<districts.length;index++){
-                        d_options.append(new Option(districts[index]))
-                    }
-                });
-          });
-
-          $('#districts').bind('click', function() {
-                const region = $('#regions').val();
-                const district = this.value;
-                $('#streets').empty();
-                $('#neighborhood').empty();
-                const d_options = $('#wards').empty();
-                $.get( "/"+ region + '/' + district, (wards)=>{
-                    // console.log(wards)
-                    for (index=0;index<wards.length;index++){
-                        d_options.append(new Option(wards[index]))
-                    }
-                });
-          });
-
-
-          $('#wards').bind('click', function() {
-                const region = $('#regions').val();
-                const district = $("#districts").val();
-                const ward = this.value;
-                $('#neighborhood').empty();
-                const d_options = $('#streets').empty();
-                $.get( "/"+ region + '/' + district + '/' + ward, (streets)=>{
-                    // console.log(streets)
-                    for (index=0;index<streets.length;index++){
-                        d_options.append(new Option(streets[index]))
-                    }
-                });
-          });
-
-          $('#streets').bind('click', function() {
-                const region = $('#regions').val();
-                const district = $("#districts").val();
-                const ward = $("#wards").val();
-                const street = this.value;
-                const d_options = $('#neighborhood').empty();
-                $.get( "/"+ region + '/' + district + '/' + ward + '/' + street, (neighborhood)=>{
-                    console.log(neighborhood)
-                    for (index=0;index<neighborhood.length;index++){
-                        d_options.append(new Option(neighborhood[index]))
-                    }
-                });
-          });
-
-
-        });
-
-
-      </script>
-
-    <style>
-        body {
-            background-color: blueviolet;
-        }
-
-        .form {
-            align-items: center;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: larger;
-            color: white;
-
-        }
-
-        select {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: large;
-            width: 250px;
-            border-radius: 5px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore Tanzania's regions, districts, wards, streets and places.">
+    <meta name="theme-color" content="#f4f7f3">
+    <title>Mtaa | Find a place in Tanzania</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v=4) }}">
+    <script src="{{ url_for('static', filename='app.js', v=4) }}" defer></script>
 </head>
-
 <body>
-    <div class="form" align="center">
-        <h1>Mtaa Example with Flask </h1>
-        <form>
-            <p>Region</p>
-            <select id="regions">
-                {% for region in list(tanzania) %}
-                <option>{{region}}</option>
-                {% endfor %}
-            </select><br>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-            <p>District</p>
-            <select name='district' id="districts">District>
-                <option>None</option>
-            </select>
+    <header class="site-header">
+        <div class="page-width header-inner">
+            <a class="brand" href="/" aria-label="Mtaa home">
+                <span class="brand-name">mtaa</span>
+                <span class="brand-description">Tanzania locations</span>
+            </a>
+            <nav class="site-nav" aria-label="Main navigation">
+                <a href="#location-search">Find a place</a>
+                <a href="https://pypi.org/project/mtaa/" target="_blank" rel="noreferrer">Data source</a>
+            </nav>
+        </div>
+    </header>
 
-            <p>Ward</p>
-            <select name='ward' id="wards">
-                <option>None</option>
-            </select>
+    <main id="main" class="page-width">
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-copy">
+                <p class="hero-label">A LOCATION DIRECTORY FOR TANZANIA</p>
+                <h1 id="page-title">Find a place<br><span>in Tanzania.</span></h1>
+                <p class="hero-description">Search by name to open its full location path.</p>
+            </div>
 
-            <p>Street</p>
-            <select name='street' id='streets'>
-                <option>None</option>
-            </select>
+            <section class="search-panel" aria-labelledby="search-title">
+                <h2 id="search-title">Start with what you know</h2>
+                <p class="panel-description">Find a location by name or postcode.</p>
+                <form id="search-form" class="search-form" role="search">
+                    <label class="sr-only" for="location-search">Search locations in Tanzania</label>
+                    <input
+                        id="location-search"
+                        name="q"
+                        type="search"
+                        autocomplete="off"
+                        aria-describedby="search-feedback"
+                        placeholder="Name or postcode"
+                    >
+                    <button class="button button-primary" type="submit">Search</button>
+                </form>
+                <div class="search-tools">
+                    <label for="search-level">Location type</label>
+                    <select id="search-level">
+                        <option value="">All locations</option>
+                        <option value="Region">Regions</option>
+                        <option value="District">Districts</option>
+                        <option value="Ward">Wards</option>
+                        <option value="Street">Streets</option>
+                        <option value="Place">Places</option>
+                    </select>
+                    <a id="download-directory" href="/api/grouped" download>Download directory JSON</a>
+                </div>
+                <p class="search-feedback" id="search-feedback" role="status" aria-live="polite"></p>
+                <section class="search-results" id="search-results" aria-label="Search results" hidden>
+                    <h3 class="results-heading" id="results-heading">Matching locations</h3>
+                    <ul class="search-result-list" id="search-result-list"></ul>
+                    <div class="result-pagination">
+                        <button class="button button-secondary" id="previous-results" type="button" hidden>Previous</button>
+                        <button class="button button-secondary" id="next-results" type="button" hidden>Next results</button>
+                    </div>
+                </section>
+            </section>
+        </section>
 
-            <p>Neighborhood</p>
-            <select name='neighborhood' id='neighborhood'>
-                <option>None</option>
-            </select>
-        </form>
-    </div>
+        <section class="explorer" id="explorer" aria-labelledby="explorer-title" hidden>
+            <div class="explorer-heading">
+                <div>
+                    <h2 id="explorer-title">Browse by area</h2>
+                    <p>Choose each level to narrow down to a place.</p>
+                </div>
+                <p class="breadcrumb" id="location-breadcrumb" aria-label="Current location path" aria-live="polite">
+                    Tanzania
+                </p>
+            </div>
+
+            <div class="location-fields" aria-label="Location hierarchy">
+                <div class="location-field">
+                    <label for="regions">Region</label>
+                    <select id="regions" aria-describedby="region-help">
+                        <option value="">Choose a region</option>
+                        {% for region in list(tanzania) %}
+                        <option value="{{ region }}">{{ region }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="field-help" id="region-help">Start with a region.</p>
+                </div>
+
+                <div class="location-field" hidden>
+                    <label for="districts">District</label>
+                    <select id="districts" name="district" aria-describedby="district-help" disabled>
+                        <option value="">Choose a district</option>
+                    </select>
+                    <p class="field-help" id="district-help">Choose a region first.</p>
+                </div>
+
+                <div class="location-field" hidden>
+                    <label for="wards">Ward</label>
+                    <select id="wards" name="ward" aria-describedby="ward-help" disabled>
+                        <option value="">Choose a ward</option>
+                    </select>
+                    <p class="field-help" id="ward-help">Choose a district first.</p>
+                </div>
+
+                <div class="location-field" hidden>
+                    <label for="streets">Street</label>
+                    <select id="streets" name="street" aria-describedby="street-help" disabled>
+                        <option value="">Choose a street</option>
+                    </select>
+                    <p class="field-help" id="street-help">Choose a ward first.</p>
+                </div>
+
+                <div class="location-field" hidden>
+                    <label for="neighborhood">Place</label>
+                    <select id="neighborhood" name="neighborhood" aria-describedby="place-help" disabled>
+                        <option value="">Choose a place</option>
+                    </select>
+                    <p class="field-help" id="place-help">Choose a street first.</p>
+                </div>
+            </div>
+
+            <p class="browse-feedback" id="browse-feedback" role="status" aria-live="polite">
+                Your selected place will appear here.
+            </p>
+
+            <section class="selection-summary" id="selection-summary" aria-labelledby="selected-place" hidden>
+                <div class="selection-copy">
+                    <h3 id="selected-place"></h3>
+                    <p id="selected-path"></p>
+                    <p id="selected-postcode" aria-live="polite"></p>
+                </div>
+                <div class="selection-action">
+                    <p class="copy-feedback" id="copy-feedback" role="status" aria-live="polite"></p>
+                    <button class="button button-secondary" id="copy-address" type="button">Copy address</button>
+                    <a class="button button-secondary" id="download-tree" download>Download area JSON</a>
+                </div>
+            </section>
+        </section>
+
+        <footer class="site-footer">
+            <p>Location records are provided by <a href="https://pypi.org/project/mtaa/" target="_blank" rel="noreferrer">mtaa 1.5 (2021)</a>. Some names and postcodes may be outdated or missing.</p>
+            <a class="footer-top" href="#main">Back to top</a>
+        </footer>
+    </main>
 </body>
-
 </html>

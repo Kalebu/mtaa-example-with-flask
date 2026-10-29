@@ -1,0 +1,36 @@
+[build]
+  command = "python build_netlify.py"
+  publish = "dist"
+
+[build.environment]
+  PYTHON_VERSION = "3.12"
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/search"
+  to = "/.netlify/functions/locations"
+  status = 200
+
+[[redirects]]
+  from = "/api/details"
+  to = "/.netlify/functions/locations"
+  status = 200
+
+[[redirects]]
+  from = "/api/tree"
+  to = "/.netlify/functions/locations"
+  status = 200
+
+[[redirects]]
+  from = "/api/grouped"
+  to = "/.netlify/functions/locations"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/locations?path=:splat"
+  status = 200
